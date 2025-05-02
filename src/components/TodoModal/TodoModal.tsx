@@ -1,40 +1,36 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Loader } from '../Loader';
-
+import { getUser } from '../../api';
 interface Todo {
   id: number;
   title: string;
   completed: boolean;
   userId: number;
 }
-
 interface User {
   id: number;
   name: string;
   email: string;
   phone: string;
 }
-
 interface TodoModalProps {
   todo: Todo | null;
-  user: User | null;
   onClose: () => void;
 }
-
-export const TodoModal: React.FC<TodoModalProps> = ({
-  todo,
-  user,
-  onClose,
-}) => {
-  const [isModalLoading, setIsModalLoading] = useState(true);
+export const TodoModal: React.FC<TodoModalProps> = ({ todo, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsModalLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    if (todo !== null) {
+      getUser(todo.userId)
+        .then(setUser)
+        // eslint-disable-next-line no-console
+        .catch(console.error)
+        .finally(() => setIsLoadingUser(false));
+    }
   }, []);
 
   if (!todo || isClosing) {
@@ -42,7 +38,7 @@ export const TodoModal: React.FC<TodoModalProps> = ({
   }
 
   const handleClose = () => {
-    setIsModalLoading(true);
+    setIsLoadingUser(true);
     setIsClosing(true);
     setTimeout(() => {
       onClose();
@@ -68,7 +64,7 @@ export const TodoModal: React.FC<TodoModalProps> = ({
           />
         </header>
         <div className="modal-card-body">
-          {isModalLoading ? (
+          {isLoadingUser ? (
             <Loader data-cy="modal-loader" />
           ) : (
             <>

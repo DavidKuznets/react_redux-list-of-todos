@@ -9,7 +9,6 @@ import '@fortawesome/fontawesome-free/css/all.css';
 export const App: React.FC = () => {
   const dispatch = useAppDispatch();
   const todos = useAppSelector((state: RootState) => state.todos.todos);
-  const users = useAppSelector((state: RootState) => state.users.users);
   const isLoading = useAppSelector((state: RootState) => state.todos.isLoading);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState('all');
@@ -23,8 +22,6 @@ export const App: React.FC = () => {
   }, [dispatch]);
 
   const selectedTodo = todos.find(todo => todo.id === selectedTodoId) || null;
-  const selectedUser =
-    users.find(user => user.id === selectedTodo?.userId) || null;
 
   return (
     <>
@@ -66,7 +63,6 @@ export const App: React.FC = () => {
       {selectedTodo && (
         <TodoModal
           todo={selectedTodo}
-          user={selectedUser}
           onClose={() => setSelectedTodoId(null)}
         />
       )}

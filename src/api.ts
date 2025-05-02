@@ -1,4 +1,3 @@
-// src/api/api.ts
 import { Todo } from './types/Todo';
 import { User } from './types/User';
 
@@ -20,4 +19,6 @@ function get<T>(url: string): Promise<T> {
 }
 
 export const getTodos = () => get<Todo[]>('/todos');
-export const getUsers = () => get<User[]>('/users');
+export const getUser = (userId: number): Promise<User> => {
+  return get<User>(`/users/${userId}`);
+};
