@@ -1,58 +1,64 @@
-import React, { ChangeEvent } from 'react';
+import React from 'react';
 
 interface TodoFilterProps {
-  setStatus: React.Dispatch<React.SetStateAction<string>>;
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  setStatus: (status: string) => void;
+  setSearchQuery: (query: string) => void;
 }
 
 export const TodoFilter: React.FC<TodoFilterProps> = ({
   setStatus,
   setSearchQuery,
 }) => {
-  const handleStatusChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const [query, setQuery] = React.useState('');
+
+  const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = event.target.value;
+
+    setQuery(newQuery);
+    setSearchQuery(newQuery);
+  };
+
+  const handleClearQuery = () => {
+    setQuery('');
+    setSearchQuery('');
+  };
+
+  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setStatus(event.target.value);
   };
 
-  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-  };
-
   return (
-    <form
-      className="field has-addons"
-      onSubmit={event => event.preventDefault()}
-    >
-      <p className="control">
-        <span className="select">
-          <select data-cy="statusSelect" onChange={handleStatusChange}>
+    <div className="field has-addons">
+      <div className="control">
+        <input
+          className="input"
+          type="text"
+          placeholder="Search todos..."
+          value={query}
+          onChange={handleQueryChange}
+          data-cy="searchInput"
+        />
+      </div>
+      {query && (
+        <div className="control">
+          <button
+            className="button is-light"
+            onClick={handleClearQuery}
+            data-cy="clearSearchButton"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+      <div className="control">
+        <div className="select">
+          <select onChange={handleStatusChange} data-cy="statusSelect">
             <option value="all">All</option>
             <option value="active">Active</option>
             <option value="completed">Completed</option>
           </select>
-        </span>
-      </p>
-
-      <p className="control is-expanded has-icons-left has-icons-right">
-        <input
-          data-cy="searchInput"
-          type="text"
-          className="input"
-          placeholder="Search..."
-          onChange={handleSearchChange}
-        />
-        <span className="icon is-left">
-          <i className="fas fa-magnifying-glass" />
-        </span>
-
-        <span className="icon is-right" style={{ pointerEvents: 'all' }}>
-          <button
-            data-cy="clearSearchButton"
-            type="button"
-            className="delete"
-            onClick={() => setSearchQuery('')}
-          />
-        </span>
-      </p>
-    </form>
+        </div>
+      </div>
+    </div>
   );
 };

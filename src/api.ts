@@ -2,7 +2,8 @@
 import { Todo } from './types/Todo';
 import { User } from './types/User';
 
-const BASE_URL = 'https://mate-academy.github.io/react_dynamic-list-of-todos';
+const BASE_URL =
+  'https://mate-academy.github.io/react_dynamic-list-of-todos/api';
 
 function wait(delay: number): Promise<void> {
   return new Promise(resolve => {

@@ -1,38 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Loader } from '../Loader';
-import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { closeModal } from '../../features/todosSlice';
-import { RootState } from '../../app/store';
 
-interface TodoModalProps {
-  todoId: number;
+interface Todo {
+  id: number;
+  title: string;
+  completed: boolean;
+  userId: number;
 }
 
-export const TodoModal: React.FC<TodoModalProps> = ({ todoId }) => {
-  const isLoading = useAppSelector((state: RootState) => state.todos.isLoading);
-  const todo = useAppSelector((state: RootState) =>
-    state.todos.todos.find(item => item.id === todoId),
-  );
-  const user = useAppSelector((state: RootState) =>
-    state.users.users.find(u => u.id === todo?.userId),
-  );
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
 
-  const dispatch = useAppDispatch();
+interface TodoModalProps {
+  todo: Todo | null;
+  user: User | null;
+  onClose: () => void;
+}
 
-  const handleCloseModal = () => {
-    dispatch(closeModal());
+export const TodoModal: React.FC<TodoModalProps> = ({
+  todo,
+  user,
+  onClose,
+}) => {
+  const [isModalLoading, setIsModalLoading] = useState(true);
+  const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsModalLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleClose = () => {
+    setIsModalLoading(true);
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 500);
   };
 
-  if (!todo || !user) {
+  if (!todo || isClosing) {
     return null;
   }
 
   return (
     <div className="modal is-active" data-cy="modal">
-      <div className="modal-background" onClick={handleCloseModal} />
-
-      {isLoading && <Loader />}
-
+      <div className="modal-background" onClick={handleClose} />
       <div className="modal-card">
         <header className="modal-card-head">
           <div
@@ -41,35 +60,47 @@ export const TodoModal: React.FC<TodoModalProps> = ({ todoId }) => {
           >
             Todo #{todo.id}
           </div>
-
           <button
             type="button"
             className="delete"
             data-cy="modal-close"
-            onClick={handleCloseModal}
+            onClick={handleClose}
           />
         </header>
-
         <div className="modal-card-body">
-          <p className="block" data-cy="modal-title">
-            {todo.title}
-          </p>
-
-          <p className="block" data-cy="modal-user">
-            <strong
-              className={
-                todo.completed ? 'has-text-success' : 'has-text-danger'
-              }
-            >
-              {todo.completed ? 'Done' : 'Planned'}
-            </strong>{' '}
-            by{' '}
-            <a href={`mailto:${user.email}`} data-cy="modal-user-email">
-              {user.name}
-            </a>
-            <br />
-            <span>{user.phone}</span>
-          </p>
+          {isModalLoading ? (
+            <Loader data-cy="modal-loader" />
+          ) : (
+            <>
+              <p className="block" data-cy="modal-title">
+                {todo.title || 'No title available'}
+              </p>
+              <p className="block" data-cy="modal-user">
+                <strong
+                  className={
+                    todo.completed ? 'has-text-success' : 'has-text-danger'
+                  }
+                  data-cy="modal-status"
+                >
+                  {todo.completed ? 'Done' : 'Planned'}
+                </strong>
+                {user ? (
+                  <>
+                    {' by '}
+                    <a href={`mailto:${user.email}`} data-cy="modal-user-email">
+                      {user.name || 'Unknown User'}
+                    </a>
+                    <br />
+                    <span data-cy="modal-user-phone">
+                      {user.phone || 'No phone available'}
+                    </span>
+                  </>
+                ) : (
+                  ' (User not found)'
+                )}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

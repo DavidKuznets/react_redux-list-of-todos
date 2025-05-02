@@ -8,17 +8,23 @@ import '@fortawesome/fontawesome-free/css/all.css';
 
 export const App: React.FC = () => {
   const dispatch = useAppDispatch();
-
   const todos = useAppSelector((state: RootState) => state.todos.todos);
+  const users = useAppSelector((state: RootState) => state.users.users);
   const isLoading = useAppSelector((state: RootState) => state.todos.isLoading);
-
+  const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
 
   useEffect(() => {
-    dispatch(loadTodosAndUsers());
+    dispatch(loadTodosAndUsers()).catch(() => {
+      setError('Failed to load data. Please try again.');
+    });
   }, [dispatch]);
+
+  const selectedTodo = todos.find(todo => todo.id === selectedTodoId) || null;
+  const selectedUser =
+    users.find(user => user.id === selectedTodo?.userId) || null;
 
   return (
     <>
@@ -26,21 +32,30 @@ export const App: React.FC = () => {
         <div className="container">
           <div className="box">
             <h1 className="title">Todos:</h1>
-
             <div className="block">
               <TodoFilter
                 setStatus={setStatus}
                 setSearchQuery={setSearchQuery}
               />
             </div>
-
             <div className="block">
+              {error && (
+                <p className="notification is-danger" data-cy="errorMessage">
+                  {error}
+                </p>
+              )}
               {isLoading && <Loader />}
-              {!isLoading && (
+              {!isLoading && todos.length === 0 && !error && (
+                <p className="notification is-warning" data-cy="noTodosMessage">
+                  No todos to display
+                </p>
+              )}
+              {!isLoading && todos.length > 0 && (
                 <TodoList
                   todos={todos}
                   searchQuery={searchQuery}
                   status={status}
+                  selectedTodoId={selectedTodoId}
                   setSelectedTodoId={setSelectedTodoId}
                 />
               )}
@@ -48,8 +63,13 @@ export const App: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {selectedTodoId !== null && <TodoModal todoId={selectedTodoId} />}
+      {selectedTodo && (
+        <TodoModal
+          todo={selectedTodo}
+          user={selectedUser}
+          onClose={() => setSelectedTodoId(null)}
+        />
+      )}
     </>
   );
 };

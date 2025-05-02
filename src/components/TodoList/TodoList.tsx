@@ -10,14 +10,16 @@ interface TodoListProps {
   todos: Todo[];
   searchQuery: string;
   status: string;
-  setSelectedTodoId: React.Dispatch<React.SetStateAction<number | null>>; // Додаємо setSelectedTodoId
+  setSelectedTodoId: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedTodoId: number | null;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
   todos,
   searchQuery,
   status,
-  setSelectedTodoId, // Отримуємо setSelectedTodoId
+  setSelectedTodoId,
+  selectedTodoId,
 }) => {
   const filteredTodos = todos
     .filter(todo => {
@@ -82,16 +84,29 @@ export const TodoList: React.FC<TodoListProps> = ({
                 </p>
               </td>
               <td className="has-text-right is-vcentered">
-                <button
-                  data-cy="selectButton"
-                  className="button"
-                  type="button"
-                  onClick={() => setSelectedTodoId(todo.id)}
-                >
-                  <span className="icon">
-                    <i className="far fa-eye" />
-                  </span>
-                </button>
+                {selectedTodoId === todo.id ? (
+                  <button
+                    data-cy="hideButton"
+                    className="button"
+                    type="button"
+                    onClick={() => setSelectedTodoId(null)}
+                  >
+                    <span className="icon">
+                      <i className="fas fa-eye-slash" />
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    data-cy="selectButton"
+                    className="button"
+                    type="button"
+                    onClick={() => setSelectedTodoId(todo.id)}
+                  >
+                    <span className="icon">
+                      <i className="far fa-eye" />
+                    </span>
+                  </button>
+                )}
               </td>
             </tr>
           ))}
