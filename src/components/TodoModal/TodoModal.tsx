@@ -90,10 +90,6 @@ export const TodoModal: React.FC<TodoModalProps> = ({
                     <a href={`mailto:${user.email}`} data-cy="modal-user-email">
                       {user.name || 'Unknown User'}
                     </a>
-                    <br />
-                    <span data-cy="modal-user-phone">
-                      {user.phone || 'No phone available'}
-                    </span>
                   </>
                 ) : (
                   ' (User not found)'
