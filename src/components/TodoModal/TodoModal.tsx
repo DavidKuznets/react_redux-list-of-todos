@@ -37,6 +37,10 @@ export const TodoModal: React.FC<TodoModalProps> = ({
     return () => clearTimeout(timer);
   }, []);
 
+  if (!todo || isClosing) {
+    return null;
+  }
+
   const handleClose = () => {
     setIsModalLoading(true);
     setIsClosing(true);
@@ -44,10 +48,6 @@ export const TodoModal: React.FC<TodoModalProps> = ({
       onClose();
     }, 500);
   };
-
-  if (!todo || isClosing) {
-    return null;
-  }
 
   return (
     <div className="modal is-active" data-cy="modal">
